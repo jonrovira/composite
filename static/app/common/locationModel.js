@@ -17,7 +17,8 @@ angular
     	lng: null,
     	reverseGeocode: null,
     	zoom: null,
-    	radius: null
+    	radius: null,
+    	viewport: null
 	};
 
 	var setLocationLat = function (lat) {
@@ -59,7 +60,11 @@ angular
 
 	var setLocationRadius = function (radius) {
 		location.radius = radius;
-	}
+	};
+
+	var setLocationViewport = function (viewport) {
+		location.viewport = viewport;
+	};
 
 
 
@@ -79,16 +84,21 @@ angular
      * to update faces model.
      *
      */
-    this.setLocation = function (lat, lng, zoom, mapWidth, mapHeight) {
-    	setLocationLat(lat);
-    	setLocationLng(lng);
-    	setLocationZoom(zoom);
-    	setLocationReverseGeocode(lat, lng).then(function(response) {
+    this.setLocation = function (lat, lng, zoom, viewport, mapWidth, mapHeight) {
+    	return new Promise(function(resolve, reject) {
+    		setLocationLat(lat);
+    		setLocationLng(lng);
+    		setLocationZoom(zoom);
+    		setLocationViewport(viewport);
 
-    		calculateRadius(lat, lng, zoom, mapWidth, mapHeight).then(function(response) {
-    			setLocationRadius(response);
-    			$rootScope.$apply(); // Apply location model changes
-    			FacesModel.setFaces(location.lat, location.lng, location.radius, DateModel.getDate());
+    		setLocationReverseGeocode(lat, lng).then(function(response) {
+
+    			calculateRadius(lat, lng, zoom, mapWidth, mapHeight).then(function(response) {
+    				setLocationRadius(response);
+    				$rootScope.$apply(); // Apply location model changes
+    				FacesModel.setFaces(location.lat, location.lng, location.radius, DateModel.getDate());
+    				resolve("Successfully set location");
+    			});
     		});
     	});
     };
@@ -110,19 +120,25 @@ angular
 			// Try getting current position
 		    navigator.geolocation.getCurrentPosition(function(position) {
 		        location = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
-		        self.setLocation(location.lat(), location.lng(), zoom, $(window).width(), $(window).height());
+		        self.setLocation(location.lat(), location.lng(), zoom, null, $(window).width(), $(window).height()).then(function(response) {
+		        	$rootScope.$broadcast('external-location-change');
+		        });
 		    }, function() {
 
 		        // If you can't, use default location
 		        location = new google.maps.LatLng(42.056459, -87.675267);
-		        self.setLocation(location.lat(), location.lng(), zoom, $(window).width(), $(window).height());
+		        self.setLocation(location.lat(), location.lng(), zoom, null, $(window).width(), $(window).height()).then(function(response) {
+		        	$rootScope.$broadcast('external-location-change');
+		        });
 		    });
 		}
 
 		// Geolocation isn't available, use default location
 		else {
 		    location = new google.maps.LatLng(42.056459, -87.675267);
-		    self.setLocation(location.lat(), location.lng(), zoom, $(window).width(), $(window).height());
+		    self.setLocation(location.lat(), location.lng(), zoom, null, $(window).width(), $(window).height()).then(function(response) {
+		    	$rootScope.$broadcast('external-location-change');
+		    });
 		}
     };
 

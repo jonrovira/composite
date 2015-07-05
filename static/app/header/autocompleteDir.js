@@ -4,8 +4,8 @@
 angular
 	.module('compositeApp.header')
     .directive('autocomplete',
-    	       ['LocationModel',
-    	       function (LocationModel) {
+    	       ['LocationModel', '$rootScope',
+    	       function (LocationModel, $rootScope) {
     
 
     return {
@@ -62,7 +62,15 @@ angular
 	    			place = autocomplete.getPlace();
 	    			var lat = place.geometry.location.lat();
 	    			var lng = place.geometry.location.lng();
-	    			LocationModel.setLocation(lat, lng, $scope.location.zoom, $(window).width(), $(window).height());
+
+	    			var viewport;
+	    			if (place.geometry.viewport) {
+	    				viewport = place.geometry.viewport;
+	    			}
+	    			else { viewport = null; }
+	    			LocationModel.setLocation(lat, lng, 17, viewport, $(window).width(), $(window).height()).then(function(response) {
+	    				$rootScope.$broadcast('external-location-change');
+	    			});
 	    		});
 	    	});
 	    }

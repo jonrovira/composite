@@ -1,21 +1,27 @@
-/*************************
- * Declaring Main Module *
- *************************/
-
 'use strict';
 
+
+/**
+ * Module declaration
+ *
+ */
 var app = angular.module('compositeApp', [
-    'ngRoute',
+    'ui.router',
     'compositeApp.common',
     'compositeApp.header',
+    'compositeApp.map',
     // 'compositeApp.peek',
-    // 'compositeApp.map',
     // 'compositeApp.faces',
 ]);
 
 
-app.config(['$interpolateProvider', '$routeProvider',
-    function($interpolateProvider, $routeProvider) {
+
+/**
+ * UI Router functionality
+ *
+ */
+app.config(['$interpolateProvider', '$stateProvider', '$urlRouterProvider',
+    function($interpolateProvider, $stateProvider, $urlRouterProvider) {
 
         // To make Angular + Jinja work
         $interpolateProvider.startSymbol('{[');
@@ -23,16 +29,25 @@ app.config(['$interpolateProvider', '$routeProvider',
 
 
         // Router
-        $routeProvider
-            .when('/map', {
-                templateUrl: '../static/app/map/map.html',
-                controller: 'MapCtrl'
-            })
-            .when('/faces', {
-                templateUrl: '../static/app/faces//faces.html',
-                controller: 'FacesCtrl'
-            })
-            .otherwise({
-                redirectTo: '/faces'
-            });
+        $urlRouterProvider.otherwise('/map');
+        $stateProvider
+        	.state('root', {
+        		url: '',
+        		abstract: true,
+        		views: {
+        			'header': {
+        				templateUrl: '../static/app/header/header.html',
+        				controller: 'HeaderCtrl'
+        			}
+        		}
+        	})
+        	.state('root.map', {
+        		url: '/map',
+        		views: {
+					'container@': {
+						templateUrl: '../static/app/map/map.html',
+						controller: 'MapCtrl'
+					}
+				}
+        	});
     }]);

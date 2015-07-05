@@ -1,27 +1,33 @@
-from flask import Flask, render_template, request, send_file
+from flask import Flask, request, send_file
 from instagram.client import InstagramAPI
-from flask.ext.sqlalchemy import SQLAlchemy
 import os
 import json
-from face_detection import detect_faces
 
+
+
+##
+# Flask application, specify configurations
+#
+#
 app = Flask(__name__)
 app.config.from_object(os.environ['APP_SETTINGS'])
-db = SQLAlchemy(app)
 
 
-###############
-# Index route #
-###############
+
+##
+# Index route 
+#
+#
 @app.route("/")
 def index():
     return send_file("templates/index.html")
 
 
 
-###########################
-# Instagram request route #
-###########################
+##
+# Instagram request route
+#
+#
 @app.route('/instagram', methods=['POST'])
 def instagram():
 	results = []
@@ -35,26 +41,18 @@ def instagram():
 	your_location = api.media_search(count=100, lat=lat, lng=lng, distance=dist, min_timestamp=min_tstmp)
 
 	for media in your_location:
-		url = media.images['standard_resolution'].url
-		pid = media.id
-		img_paths = detect_faces(url, pid)
-		if not img_paths == []:
-			for img_path in img_paths:
-				results.append(img_path)
+		results.append(media.images['standard_resolution'].url)
 
 	results = json.dumps(results)
-	print "****** RESULTS ******"
-	print " "
-	print results
 
 	return results
 
 
 
-
-
-
-
+##
+# Main
+#
+#
 if __name__ == '__main__':
 	app.debug = True
 	app.run()

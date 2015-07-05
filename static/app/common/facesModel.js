@@ -28,7 +28,6 @@ angular
                                   "min_timestamp": minTimestamp})
             .success(function (results) {
                 faces = results;
-                console.log(faces);
             })
             .error(function (error) {
                 console.log('Error setting faces');
