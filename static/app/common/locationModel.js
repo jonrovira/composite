@@ -95,9 +95,10 @@ angular
 
     			calculateRadius(lat, lng, zoom, mapWidth, mapHeight).then(function(response) {
     				setLocationRadius(response);
-    				$rootScope.$apply(); // Apply location model changes
-    				FacesModel.setFaces(location.lat, location.lng, location.radius, DateModel.getDate());
-    				resolve("Successfully set location");
+    				FacesModel.setFaces(location.lat, location.lng, location.radius, DateModel.getDate()).then(function(response) {
+    					$rootScope.$apply(); // Apply model changes
+    					resolve("Successfully set location");
+    				});
     			});
     		});
     	});

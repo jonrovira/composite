@@ -10,8 +10,8 @@ var app = angular.module('compositeApp', [
     'compositeApp.common',
     'compositeApp.header',
     'compositeApp.map',
+    'compositeApp.faces',
     // 'compositeApp.peek',
-    // 'compositeApp.faces',
 ]);
 
 
@@ -49,5 +49,14 @@ app.config(['$interpolateProvider', '$stateProvider', '$urlRouterProvider',
 						controller: 'MapCtrl'
 					}
 				}
+        	})
+        	.state('root.faces', {
+        		url: '/faces',
+        		views: {
+        			'container@': {
+        				templateUrl: '../static/app/faces/faces.html',
+        				controller: 'FacesCtrl'
+        			}
+        		}
         	});
     }]);

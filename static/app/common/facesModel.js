@@ -4,15 +4,17 @@
 angular
     .module('compositeApp.common')
     .service('FacesModel',
-    	     ['$http',
-    	     function ($http) {
+    	     ['$http', '$rootScope',
+    	     function ($http, $rootScope) {
 
     
     /**
      * Private variables, setters
      *
      */
-    var faces = [];
+    var faces = {
+    	urls: []
+    };
 
 
 
@@ -22,16 +24,29 @@ angular
      *
      */
     this.setFaces = function (lat, lng, radius, minTimestamp) {
-        $http.post('/instagram', {"lat": lat,
-                                  "lng": lng,
-                                  "dist": radius,
-                                  "min_timestamp": minTimestamp})
-            .success(function (results) {
-                faces = results;
-            })
-            .error(function (error) {
-                console.log('Error setting faces');
-            });
+    	return new Promise(function(resolve, reject) {
+    		$http.post('/instagram', {"lat": lat,
+    		                          "lng": lng,
+    		                          "dist": radius,
+    		                          "min_timestamp": minTimestamp})
+    		    .success(function (results) {
+    		    	faces.urls = results;
+    		    	resolve("Success!");
+    		    })
+    		    .error(function (error) {
+    		        console.log('Error setting faces');
+    		        resolve("Failure!");
+    		    });
+    	});
+    };
+
+
+    /**
+     * Primary faces model accessor
+     *
+     */
+    this.getFaces = function () {
+    	return faces;
     };
 
 
